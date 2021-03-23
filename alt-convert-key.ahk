@@ -5,6 +5,7 @@ LongPressAltEnabled := True
 
 
 SendMode Input
+SetKeyDelay, -1
 
 LAltState := "Off" ; Off | Tapping | Pressing
 RAltState := "Off"
@@ -43,28 +44,24 @@ QueuedKey := ""
     If (LAltState = "Off") {
         Send {Blind}{F14}
         LAltState := "Tapping"
-        SetTimer, OnTimeoutLAltTapping, -200
-    }
-    Return
-*~LAlt Up::
-    SetTimer, OnTimeoutLAltTapping, Off
-    If (LAltState = "Tapping") {
-        SetKeyDelay, -1
-        Send, {Blind}{vk1D}%QueuedKey%
-    } Else If (LongPressAltEnabled && LAltState = "Pressing" && A_Priorkey == "LAlt") {
-        Send, {LAlt}
-    }
-    LAltState := "Off"
-    QueuedKey := ""
-    Return
-OnTimeoutLAltTapping:
-    If (LAltState = "Tapping") {
-        LAltState := "Pressing"
-        If (QueuedKey != "") {
-            SetKeyDelay, -1
-            Send, {Blind}%QueuedKey%
-            QueuedKey := ""
+        KeyWait, LAlt, T0.2
+        If ErrorLevel {
+            LAltState := "Pressing"
+            If (QueuedKey != "") 
+                Send, {Blind}%QueuedKey%
+            If LongPressAltEnabled {
+                KeyWait, LAlt
+                If (A_PriorKey = "LAlt") 
+                    Send, {LAlt}
+            }
+        } Else {
+            If (QueuedKey = "" || (A_PriorKey != "LAlt" && GetKeyState(A_PriorKey, "P")))
+                Send, {Blind}{vk1D}%QueuedKey%
+            Else
+                Send, {Blind}{LAlt DownR}%QueuedKey%{LAlt up}
         }
+        QueuedKey := ""
+        LAltState := "Off"
     }
     Return
 
@@ -72,27 +69,23 @@ OnTimeoutLAltTapping:
     If (RAltState = "Off") {
         Send {Blind}{F14}
         RAltState := "Tapping"
-        SetTimer, OnTimeoutRAltTapping, -200
-    }
-    Return
-*~RAlt Up::
-    SetTimer, OnTimeoutRAltTapping, Off
-    If (RAltState = "Tapping") {
-        SetKeyDelay, -1
-        Send, {Blind}{vk1C}%QueuedKey%
-    } Else If (LongPressAltEnabled && RAltState = "Pressing" && A_Priorkey == "RAlt") {
-        Send, {RAlt}
-    } 
-    RAltState := "Off"
-    QueuedKey := ""
-    Return
-OnTimeoutRAltTapping:
-    If (RAltState = "Tapping") {
-        RAltState := "Pressing"
-        If (QueuedKey != "") {
-            SetKeyDelay, -1
-            Send, {Blind}%QueuedKey%
-            QueuedKey := ""
+        KeyWait, RAlt, T0.2
+        If ErrorLevel {
+            RAltState := "Pressing"
+            If (QueuedKey != "")
+                Send, {Blind}%QueuedKey%
+            If LongPressAltEnabled {
+                KeyWait, RAlt
+                If (A_PriorKey = "RAlt") 
+                    Send, {RAlt}
+            }
+        } Else {
+            If (QueuedKey = "" || (A_PriorKey != "LAlt" && GetKeyState(A_PriorKey, "P")))
+                Send, {Blind}{vk1C}%QueuedKey%
+            Else
+                Send, {Blind}{RAlt DownR}%QueuedKey%{RAlt up}
         }
+        QueuedKey := ""
+        RAltState := "Off"
     }
     Return
