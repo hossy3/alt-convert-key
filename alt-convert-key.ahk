@@ -1,7 +1,7 @@
 #NoEnv
 
 ; Options
-LongPressAltEnabled := True
+LongPressAltEnabled := False
 
 
 SendMode Input
